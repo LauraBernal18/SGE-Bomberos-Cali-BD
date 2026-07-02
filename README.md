@@ -117,12 +117,12 @@ Desde IntelliJ IDEA:
   Entregas
 Depende de los datos base (clientes, sedes, empleados, productos) ya creados en el paso anterior.
 
- ### 03_transacciones_compras.sql
- Inserta las transacciones de compras:
- Órdenes de compra
- Detalles de compra
- Facturas de proveedores
- Pagos a proveedores
+  ### 03_transacciones_compras.sql
+  Inserta las transacciones de compras:
+  Órdenes de compra
+  Detalles de compra
+  Facturas de proveedores
+  Pagos a proveedores
 
 ### 5. Ejecutar las consultas de validación
 
