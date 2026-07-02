@@ -101,6 +101,29 @@ Desde IntelliJ IDEA:
       SELECT COUNT(*) FROM CLIENTE;
       SELECT COUNT(*) FROM ORDEN;
 
+   ### 01_maestros.sql
+  Contiene las tablas base y los datos iniciales:
+  Clientes
+  Sedes
+  Empleados
+  
+  ### 02_transacciones_ventas.sql
+  Inserta las transacciones de ventas:
+  Productos
+  Órdenes
+  Detalles de órdenes
+  Facturas
+  Pagos
+  Entregas
+Depende de los datos base (clientes, sedes, empleados, productos) ya creados en el paso anterior.
+
+ ### 03_transacciones_compras.sql
+ Inserta las transacciones de compras:
+ Órdenes de compra
+ Detalles de compra
+ Facturas de proveedores
+ Pagos a proveedores
+
 ### 5. Ejecutar las consultas de validación
 
 - Abrir el archivo `db/consultas.sql`.
