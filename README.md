@@ -92,8 +92,14 @@ Desde IntelliJ IDEA:
 
 ### 4. Cargar los datos de prueba
 
-- Abrir el archivo `db/inserts.sql`.
-- Ejecutar el script.
+- Uso de transacciones
+- Se utilizó BEGIN; para agrupar varios inserts.
+- Al final se cerró con COMMIT; para confirmar los cambios.
+- En caso de error se aplicó ROLLBACK; para limpiar la transacción.
+- Se ejecutó el archivo 02_transacciones_ventas.sql con más de 8.000 líneas.
+
+      SELECT COUNT(*) FROM CLIENTE;
+      SELECT COUNT(*) FROM ORDEN;
 
 ### 5. Ejecutar las consultas de validación
 
