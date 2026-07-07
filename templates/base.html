@@ -68,6 +68,20 @@
 
 </div>
 
+{% if messages %}
+
+{% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">
+
+    {{ message }}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
 <footer>

@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Cliente
 from .forms import ClienteForm
+from django.contrib import messages
+from django.db.models.deletion import ProtectedError
 
 
 def lista_clientes(request):
@@ -68,18 +70,44 @@ def editar_cliente(request, id_cliente):
         }
     )
 
-def eliminar_cliente(request, pk):
+def eliminar_cliente(request, id_cliente):
 
-        cliente = get_object_or_404(Cliente, pk=pk)
+    cliente = get_object_or_404(
+        Cliente,
+        pk=id_cliente
+    )
 
-        if request.method == "POST":
+    if request.method == "POST":
+
+        try:
 
             cliente.delete()
 
-            return redirect("lista_clientes")
+            messages.success(
+                request,
+                "Cliente eliminado correctamente."
+            )
 
-        return render(
-            request,
-            "clientes/eliminar.html",
-            {"cliente": cliente}
-        )
+        except ProtectedError:
+
+            messages.error(
+                request,
+                "No es posible eliminar este cliente porque tiene registros asociados."
+            )
+
+        except Exception:
+
+            messages.error(
+                request,
+                "No fue posible eliminar el cliente."
+            )
+
+        return redirect("lista_clientes")
+
+    return render(
+        request,
+        "clientes/confirmar_eliminar.html",
+        {
+            "cliente": cliente
+        }
+    )
