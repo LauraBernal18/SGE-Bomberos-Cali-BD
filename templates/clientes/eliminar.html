@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+<h2>Eliminar Cliente</h2>
+
+<p>
+
+    ¿Está seguro de eliminar el cliente
+
+    <strong>{{ cliente.nombre_razon_social }}</strong>?
+
+</p>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <button class="btn btn-danger">
+        Eliminar
+    </button>
+
+    <a href="/clientes/" class="btn btn-secondary">
+        Cancelar
+    </a>
+
+</form>
+
+{% endblock %}
