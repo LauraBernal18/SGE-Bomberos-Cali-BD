@@ -3,16 +3,42 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Cliente
 from .forms import ClienteForm
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models.deletion import ProtectedError
+from django.db.models import Q
 
 
 def lista_clientes(request):
-    clientes = Cliente.objects.all().order_by("nombre_razon_social")
+
+    busqueda = request.GET.get("buscar", "")
+
+    clientes = Cliente.objects.all()
+
+    if busqueda:
+
+        clientes = clientes.filter(
+
+            Q(nombre_razon_social__icontains=busqueda) |
+            Q(num_doc__icontains=busqueda) |
+            Q(ciudad__icontains=busqueda)
+
+        )
+
+    clientes = clientes.order_by("nombre_razon_social")
+
+    paginador = Paginator(clientes, 10)
+
+    numero_pagina = request.GET.get("page")
+
+    clientes = paginador.get_page(numero_pagina)
 
     return render(
         request,
         "clientes/lista.html",
-        {"clientes": clientes}
+        {
+            "clientes": clientes,
+            "busqueda": busqueda
+        }
     )
 
 
@@ -24,6 +50,10 @@ def crear_cliente(request):
 
         if formulario.is_valid():
             formulario.save()
+            messages.success(
+                  request,
+                  "Cliente registrado correctamente."
+            )
             return redirect("lista_clientes")
 
     else:
@@ -31,9 +61,12 @@ def crear_cliente(request):
         formulario = ClienteForm()
 
     return render(
-        request,
-        "clientes/formulario.html",
-        {"formulario": formulario}
+            request,
+            "clientes/formulario.html",
+            {
+                "formulario": formulario,
+                "titulo": "Nuevo Cliente"
+            }
     )
 
 
@@ -54,6 +87,10 @@ def editar_cliente(request, id_cliente):
         if formulario.is_valid():
 
             formulario.save()
+            messages.success(
+                request,
+                "Cliente actualizado correctamente."
+            )
 
             return redirect("lista_clientes")
 

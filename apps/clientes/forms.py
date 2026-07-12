@@ -4,6 +4,35 @@ from .models import Cliente
 
 class ClienteForm(forms.ModelForm):
 
+    def clean_num_doc(self):
+
+        num_doc = self.cleaned_data["num_doc"]
+
+        if Cliente.objects.exclude(
+            pk=self.instance.pk
+        ).filter(num_doc=num_doc).exists():
+
+            raise forms.ValidationError(
+                "Ya existe un cliente con ese documento."
+            )
+
+        return num_doc
+
+
+    def clean_correo(self):
+
+        correo = self.cleaned_data["correo"]
+
+        if Cliente.objects.exclude(
+            pk=self.instance.pk
+        ).filter(correo=correo).exists():
+
+            raise forms.ValidationError(
+                "Ese correo ya está registrado."
+            )
+
+        return correo
+
     TIPO_DOC = [
         ("CC", "Cédula de Ciudadanía"),
         ("CE", "Cédula de Extranjería"),
@@ -45,19 +74,23 @@ class ClienteForm(forms.ModelForm):
         widgets = {
 
             "num_doc": forms.TextInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "placeholder": "Ej: 1143856987"
             }),
 
             "nombre_razon_social": forms.TextInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "placeholder": "Nombre completo o razón social"
             }),
 
             "telefono": forms.TextInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "placeholder": "3001234567"
             }),
 
             "correo": forms.EmailInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "placeholder": "correo@empresa.com"
             }),
 
             "direccion_operativa": forms.TextInput(attrs={
@@ -69,10 +102,11 @@ class ClienteForm(forms.ModelForm):
             }),
 
             "ciudad": forms.TextInput(attrs={
-                "class": "form-control"
+                "class": "form-control",
+                "placeholder": "Cali"
             }),
 
-            "representante_legal": forms.TextInput(attrs={
+            "repre_legal": forms.TextInput(attrs={
                 "class": "form-control"
             }),
 
