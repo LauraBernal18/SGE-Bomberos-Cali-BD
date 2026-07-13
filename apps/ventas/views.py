@@ -4,6 +4,7 @@ from .forms import OrdenForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db import connection
 
 def lista_ventas(request):
     busqueda = request.GET.get("buscar", "")
@@ -26,6 +27,13 @@ def crear_venta(request):
     if request.method == "POST":
         formulario = OrdenForm(request.POST)
         if formulario.is_valid():
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                               SELECT setval(pg_get_serial_sequence('orden', 'id_orden'),
+                                             COALESCE(MAX(id_orden), 1))
+                               FROM orden;
+                               """)
             formulario.save()
             messages.success(request, "Orden registrada correctamente.")
             return redirect("lista_ventas")
