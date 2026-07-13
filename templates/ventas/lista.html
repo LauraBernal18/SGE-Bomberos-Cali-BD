@@ -1,34 +1,25 @@
 {% extends "base.html" %}
-{% block titulo %}
-Ventas
-{% endblock %}
+{% block titulo %} Ventas {% endblock %}
 {% block contenido %}
-<h2 class="mb-4">
-    Órdenes registradas
-</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Órdenes registradas</h2>
+    <a href="{% url 'crear_venta' %}" class="btn btn-success">+ Nueva Orden</a>
+</div>
+
 <form method="GET" class="row mb-4">
     <div class="col-md-9">
-        <input
-                type="text"
-                name="buscar"
-                class="form-control"
-                placeholder="Buscar por cliente o estado..."
-                value="{{ busqueda }}">
+        <input type="text" name="buscar" class="form-control" placeholder="Buscar por cliente o estado..." value="{{ busqueda }}">
     </div>
     <div class="col-md-3 d-grid">
-        <button class="btn btn-primary">
-            Buscar
-        </button>
+        <button class="btn btn-primary">Buscar</button>
     </div>
 </form>
+
 <p class="text-muted">
     Se encontraron <strong>{{ ordenes.paginator.count }}</strong> orden(es).
 </p>
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="{% url 'crear_venta' %}" class="btn btn-success">
-        + Nueva Orden
-    </a>
-</div>
+
 <div class="card shadow">
     <div class="card-body">
         <table class="table table-hover align-middle">
@@ -61,59 +52,36 @@ Ventas
                     {% endif %}
                 </td>
                 <td class="text-center">
-                    <a href="{% url 'editar_venta' orden.id_orden %}" class="btn btn-warning btn-sm">
-                        Editar
-                    </a>
-                    <a href="{% url 'eliminar_venta' orden.id_orden %}" class="btn btn-danger btn-sm">
-                        Eliminar
-                    </a>
+                    <a href="{% url 'detalle_venta' orden.id_orden %}" class="btn btn-primary btn-sm">Ver Detalle</a>
+
+                    {% if orden.estado == "En Proceso" or orden.estado == "Pendiente" %}
+                    <a href="{% url 'editar_venta' orden.id_orden %}" class="btn btn-warning btn-sm ms-1">Editar</a>
+                    <a href="{% url 'eliminar_venta' orden.id_orden %}" class="btn btn-danger btn-sm ms-1">Eliminar</a>
+                    {% else %}
+                    <span class="badge bg-secondary ms-1">Inalterable</span>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-center text-muted">
-                    No hay órdenes registradas.
-                </td>
+                <td colspan="7" class="text-center text-muted">No hay órdenes registradas.</td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
 <nav class="mt-4">
     <ul class="pagination justify-content-center">
         {% if ordenes.has_previous %}
-        <li class="page-item">
-            <a class="page-link"
-               href="?buscar={{ busqueda }}&page=1">
-                Primera
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link"
-               href="?buscar={{ busqueda }}&page={{ ordenes.previous_page_number }}">
-                Anterior
-            </a>
-        </li>
+        <li class="page-item"><a class="page-link" href="?buscar={{ busqueda }}&page=1">Primera</a></li>
+        <li class="page-item"><a class="page-link" href="?buscar={{ busqueda }}&page={{ ordenes.previous_page_number }}">Anterior</a></li>
         {% endif %}
-        <li class="page-item active">
-            <span class="page-link">
-                Página {{ ordenes.number }} de {{ ordenes.paginator.num_pages }}
-            </span>
-        </li>
+        <li class="page-item active"><span class="page-link">Página {{ ordenes.number }} de {{ ordenes.paginator.num_pages }}</span></li>
         {% if ordenes.has_next %}
-        <li class="page-item">
-            <a class="page-link"
-               href="?buscar={{ busqueda }}&page={{ ordenes.next_page_number }}">
-                Siguiente
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link"
-               href="?buscar={{ busqueda }}&page={{ ordenes.paginator.num_pages }}">
-                Última
-            </a>
-        </li>
+        <li class="page-item"><a class="page-link" href="?buscar={{ busqueda }}&page={{ ordenes.next_page_number }}">Siguiente</a></li>
+        <li class="page-item"><a class="page-link" href="?buscar={{ busqueda }}&page={{ ordenes.paginator.num_pages }}">Última</a></li>
         {% endif %}
     </ul>
 </nav>
