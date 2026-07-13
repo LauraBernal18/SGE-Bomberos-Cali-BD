@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q, Sum
 from django.utils import timezone
+from django.db import connection
 
 from .models import OrdenProveedor, DetalleOrdProveedor
 from .forms import OrdenProveedorForm, DetalleOrdProveedorForm
@@ -41,6 +42,12 @@ def crear_orden(request):
     if request.method == "POST":
         formulario = OrdenProveedorForm(request.POST)
         if formulario.is_valid():
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                               SELECT setval(pg_get_serial_sequence('orden_proveedor', 'id_ord_prov'),
+                                             COALESCE(MAX(id_ord_prov), 1))
+                               FROM orden_proveedor;
+                               """)
             orden = formulario.save()
             messages.success(
                 request,
@@ -108,9 +115,8 @@ def eliminar_detalle(request, id_detalle_prov):
 
 def recibir_orden(request, id_ord_prov):
     """
-    Transición de estado Pendiente -> Recibida. No es una 'edición' del
-    documento: es el cierre natural del flujo de compras, y a partir de
-    aquí la orden queda congelada (ya no se le pueden agregar/quitar líneas).
+    Transición de estado Pendiente -> Recibida.
+    congela la orden (no se puede modificar)
     """
     orden = get_object_or_404(OrdenProveedor, pk=id_ord_prov)
     if request.method == "POST":
@@ -120,9 +126,31 @@ def recibir_orden(request, id_ord_prov):
             messages.error(request, "No puedes recibir una orden sin productos.")
         else:
             orden.estado = "Recibida"
-            orden.fecha_recepcion = timezone.now()
-            if not orden.fecha_entrega:
-                orden.fecha_entrega = timezone.now()
+
+
+            ahora = timezone.localtime(timezone.now())
+            #Si la fecha de orden no se encuentra se hace la actualización
+            if not (orden.fecha_orden and timezone.is_aware(orden.fecha_orden)):
+                ahora = ahora.replace(tzinfo=None)
+
+            # Validamos que no sea menor a la fecha del pedido
+                fecha_final = orden.fecha_orden
+            else:
+                fecha_final = ahora
+
+            # Forzar a que ambas fechas compartan exactamente el mismo instante matemático
+            orden.fecha_recepcion = fecha_final
+            orden.fecha_entrega = fecha_final
+
+            # copia automáticamente las cantidades pedidas a la columna de recibidas
+            for d in orden.detalles.all():
+                d.cantidad_recibida = d.cantidad_pedida
+                d.save()
+
+                # Modifica el inventario del producto
+                inv = d.id_producto.inventario
+                inv.stock_actual += d.cantidad_pedida
+                inv.save()
             orden.save()
             messages.success(request, f"Orden #{orden.id_ord_prov} marcada como Recibida.")
         return redirect("detalle_orden", id_ord_prov=orden.id_ord_prov)
