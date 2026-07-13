@@ -3,7 +3,7 @@ from .models import Proveedor
 from .forms import ProveedorForm
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models.deletion import ProtectedError
+from django.db.models.deletion import ProtectedError, IntegrityError
 from django.db.models import Q
 from django.db import connection
 
@@ -67,7 +67,7 @@ def eliminar_proveedor(request, id_proveedor):
         try:
             proveedor.delete()
             messages.success(request, "Proveedor eliminado correctamente.")
-        except ProtectedError:
+        except (ProtectedError, IntegrityError):
             messages.error(request, "No es posible eliminar este proveedor porque tiene registros asociados.")
         return redirect("lista_proveedores")
     return render(request, "proveedores/eliminar.html", {"proveedor": proveedor})
