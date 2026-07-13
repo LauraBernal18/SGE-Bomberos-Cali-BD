@@ -6,7 +6,6 @@ urlpatterns = [
     path("", views.lista_inventario, name="lista_inventario"),
     path("crear/", views.crear_inventario, name="crear_inventario"),
     path("editar/<int:id_inventario>/", views.editar_inventario, name="editar_inventario"),
-    path("eliminar/<int:id_inventario>/", views.eliminar_inventario, name="eliminar_inventario"),
 
     # Producto (entidad propia)
     path("productos/", views.lista_productos, name="lista_productos"),
