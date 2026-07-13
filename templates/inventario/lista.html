@@ -13,7 +13,9 @@
     <div class="col-md-9">
         <input type="text" name="buscar" class="form-control" placeholder="Buscar por producto..." value="{{ busqueda }}">
     </div>
-    <div class="col-md-3 d-grid"><button class="btn btn-primary">Buscar</button></div>
+    <div class="col-md-3 d-grid">
+        <button class="btn btn-primary">Buscar</button>
+    </div>
 </form>
 
 <div class="card shadow">
@@ -21,9 +23,15 @@
         <table class="table table-hover align-middle">
             <thead class="table-danger">
             <tr>
-                <th>ID</th><th>Producto</th><th>Stock Actual</th><th>Stock Mínimo</th>
-                <th>Demanda Diaria</th><th>Días de Stock</th><th>Estado</th>
-                <th>Acción Recomendada</th><th class="text-center">Acciones</th>
+                <th>ID</th>
+                <th>Producto</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+                <th>Demanda Diaria</th>
+                <th>Días de Stock</th>
+                <th>Estado</th>
+                <th>Acción Recomendada</th>
+                <th class="text-center">Acciones</th>
             </tr>
             </thead>
             <tbody>
@@ -42,21 +50,27 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if item.estado_calculado == "Agotado" %}<span class="badge bg-dark">Agotado</span>
-                    {% elif item.estado_calculado == "Crítico" %}<span class="badge bg-danger">Crítico</span>
-                    {% elif item.estado_calculado == "Alerta" %}<span class="badge bg-warning text-dark">Alerta</span>
-                    {% elif item.estado_calculado == "Seguro" %}<span class="badge bg-success">Seguro</span>
-                    {% else %}<span class="badge bg-secondary">N/D</span>
+                    {% if item.estado_calculado == "Agotado" %}
+                    <span class="badge bg-dark">Agotado</span>
+                    {% elif item.estado_calculado == "Crítico" %}
+                    <span class="badge bg-danger">Crítico</span>
+                    {% elif item.estado_calculado == "Alerta" %}
+                    <span class="badge bg-warning text-dark">Alerta</span>
+                    {% elif item.estado_calculado == "Seguro" %}
+                    <span class="badge bg-success">Seguro</span>
+                    {% else %}
+                    <span class="badge bg-secondary">N/D</span>
                     {% endif %}
                 </td>
                 <td>{{ item.accion_calculada|default:"—" }}</td>
                 <td class="text-center">
                     <a href="{% url 'editar_inventario' item.id_inventario %}" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="{% url 'eliminar_inventario' item.id_inventario %}" class="btn btn-danger btn-sm">Eliminar</a>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="9" class="text-center text-muted">No hay registros de inventario.</td></tr>
+            <tr>
+                <td colspan="9" class="text-center text-muted">No hay registros de inventario.</td>
+            </tr>
             {% endfor %}
             </tbody>
         </table>
