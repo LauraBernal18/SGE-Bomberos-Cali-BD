@@ -4,6 +4,17 @@ from .models import Cliente
 
 class ClienteForm(forms.ModelForm):
 
+    def __init__(self, *args, **kwargs):
+        #formulario normal
+        super().__init__(*args, **kwargs)
+        # revisar si es edición o es creación (si tiene ID es T, si no lo tiene es F)
+        existe = self.instance and self.instance.pk
+
+        #si ya existe se bloquean los campos de datos sensibles y no editables
+        self.fields['tipo_doc'].disabled = existe
+        self.fields['num_doc'].disabled = existe
+
+
     def clean_num_doc(self):
 
         num_doc = self.cleaned_data["num_doc"]
