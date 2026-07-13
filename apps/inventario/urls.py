@@ -1,0 +1,8 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("", views.lista_inventario, name="lista_inventario"),
+    path("editar/<int:id_inventario>/", views.editar_inventario, name="editar_inventario"),
+    path("eliminar/<int:id_inventario>/", views.eliminar_inventario, name="eliminar_inventario"),
+]
