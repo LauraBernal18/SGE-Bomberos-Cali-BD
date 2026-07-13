@@ -13,7 +13,25 @@ from django.utils import timezone
 from apps.inventario.models import Inventario
 import uuid
 
-IVA_TASA = Decimal("0.19")
+# ------------------------------------------------------------------
+# Tarifas de IVA vigentes en Colombia, aplicadas según la categoría
+# del producto (columna ya existente en PRODUCTO, sin tocar el esquema).
+#   - Capacitación: son servicios educativos -> Exento (0%)
+#   - Botiquines: insumos básicos de salud -> Diferencial (5%)
+#   - Cualquier otra categoría (Extintores, Camillas, EPP, Señalización,
+#     Sistemas Fijos, Detección de Incendios, Accesorios, Mangueras, etc.)
+#     -> Tarifa General (19%), que es la que aplica a la mayoría de
+#     productos de seguridad industrial.
+# ------------------------------------------------------------------
+TARIFAS_IVA_POR_CATEGORIA = {
+    "Capacitación": Decimal("0.00"),
+    "Botiquines": Decimal("0.05"),
+}
+TARIFA_IVA_GENERAL = Decimal("0.19")
+
+
+def obtener_tarifa_iva(categoria):
+    return TARIFAS_IVA_POR_CATEGORIA.get(categoria, TARIFA_IVA_GENERAL)
 
 def lista_ventas(request):
     busqueda = request.GET.get("buscar", "")
@@ -57,6 +75,11 @@ def crear_venta(request):
 
 def editar_venta(request, id_orden):
     orden = get_object_or_404(Orden, pk=id_orden)
+
+    if not orden.es_editable:
+        messages.error(request, "Esta orden ya fue facturada y no puede editarse.")
+        return redirect("lista_ventas")
+
     if request.method == "POST":
         formulario = OrdenForm(request.POST, instance=orden)
         if formulario.is_valid():
@@ -172,8 +195,13 @@ def finalizar_venta(request, id_orden):
                                    FROM factura;
                                    """)
 
-                subtotal = orden.total
-                iva = (subtotal * IVA_TASA).quantize(Decimal("0.01"))
+                subtotal = Decimal("0.00")
+                iva = Decimal("0.00")
+                for detalle in orden.detalles.select_related("id_producto"):
+                    tarifa = obtener_tarifa_iva(detalle.id_producto.categoria)
+                    iva_linea = (detalle.subtotal * tarifa).quantize(Decimal("0.01"))
+                    subtotal += detalle.subtotal
+                    iva += iva_linea
                 total_con_iva = subtotal + iva
 
                 Factura.objects.create(
