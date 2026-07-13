@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models.deletion import ProtectedError
 from django.db.models import Q
+from django.db import connection  # <-- 1. Importación para ejecutar SQL directo
 
 def lista_proveedores(request):
     busqueda = request.GET.get("buscar", "")
     proveedores = Proveedor.objects.all()
     if busqueda:
         proveedores = proveedores.filter(
-            Q(razon_social__icontains=busqueda) |
-            Q(nit__icontains=busqueda)
+            Q(razon_social__icontains=busqueda) | Q(nit__icontains=busqueda)
         )
     proveedores = proveedores.order_by("razon_social")
     paginador = Paginator(proveedores, 10)
@@ -27,6 +27,15 @@ def crear_proveedor(request):
     if request.method == "POST":
         formulario = ProveedorForm(request.POST)
         if formulario.is_valid():
+
+            # contador de IDs en para evitar fallos
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                               SELECT setval(pg_get_serial_sequence('proveedor', 'id_proveedor'),
+                                             COALESCE(MAX(id_proveedor), 1))
+                               FROM proveedor;
+                               """)
+
             formulario.save()
             messages.success(request, "Proveedor registrado correctamente.")
             return redirect("lista_proveedores")
