@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Orden #{{ orden.id_orden }}{% endblock %}
+{% block contenido %}
+<h2 class="mb-4">Orden de Venta #{{ orden.id_orden }} - {{ orden.estado }}</h2>
+
+<table class="table">
+    <tr><th>Cliente</th><td>{{ orden.id_cliente.nombre_razon_social }}</td></tr>
+    <tr><th>Sede</th><td>{{ orden.id_sede.nombre_sede }}</td></tr>
+    <tr><th>Total</th><td>${{ orden.total }}</td></tr>
+</table>
+
+<h4>Productos</h4>
+<table class="table">
+    <thead><tr><th>Producto</th><th>Cantidad</th><th>Subtotal</th>{% if orden.es_editable %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for d in detalles %}
+    <tr>
+        <td>{{ d.id_producto.nombre }}</td>
+        <td>{{ d.cantidad }}</td>
+        <td>${{ d.subtotal }}</td>
+        {% if orden.es_editable %}
+        <td><a href="{% url 'eliminar_detalle_venta' d.id_detalle %}" class="btn btn-danger btn-sm">Quitar</a></td>
+        {% endif %}
+    </tr>
+    {% empty %}
+    <tr><td colspan="4" class="text-center text-muted">Sin productos aún.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if orden.es_editable %}
+<h5>Agregar producto</h5>
+<form method="post">
+    {% csrf_token %}
+    {{ formulario.as_p }}
+    <button class="btn btn-success">Agregar</button>
+</form>
+<a href="{% url 'finalizar_venta' orden.id_orden %}" class="btn btn-danger mt-3">Finalizar y Facturar</a>
+{% endif %}
+
+{% if factura %}
+<hr>
+<h4>Factura Electrónica de Venta</h4>
+<p>{{ factura.prefijo }}-{{ factura.num_consec }} | Subtotal: ${{ factura.subtotal }} | IVA: ${{ factura.total_iva }} | Total: ${{ factura.total }}</p>
+{% endif %}
+
+<a href="{% url 'lista_ventas' %}" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %}
