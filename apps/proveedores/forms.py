@@ -2,6 +2,13 @@ from django import forms
 from .models import Proveedor
 
 class ProveedorForm(forms.ModelForm):
+    #no editable en nit para proveedores
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        existe = self.instance and self.instance.pk
+
+        self.fields['nit'].disabled = existe
+
     class Meta:
         model = Proveedor
         fields = "__all__"
