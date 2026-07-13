@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.proveedores',
     'apps.inventario',
     'apps.ventas',
+    'apps.compras',
 ]
 
 MIDDLEWARE = [
@@ -128,4 +129,4 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-]
+    ]

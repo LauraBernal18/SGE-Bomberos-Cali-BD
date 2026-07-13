@@ -144,6 +144,7 @@ CREATE TABLE ORDEN_PROVEEDOR (
     fecha_recepcion TIMESTAMP,
     total DECIMAL(12,2),
     estado VARCHAR(20) NOT NULL,
+    lugar_entrega VARCHAR(150) NOT NULL,
 
     CONSTRAINT chk_total_ord_prov
         CHECK (total >= 0),

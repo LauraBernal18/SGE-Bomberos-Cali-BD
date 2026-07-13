@@ -1,4 +1,5 @@
 from django.db import models
+from apps.proveedores.models import Proveedor
 
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
@@ -7,6 +8,9 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     categoria = models.CharField(max_length=50, blank=True, null=True)
     activo = models.BooleanField(default=True)
+    id_proveedor = models.ForeignKey(
+        Proveedor, on_delete=models.DO_NOTHING, db_column="id_proveedor"
+    )
 
     class Meta:
         managed = False
