@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models.deletion import ProtectedError
 from django.db.models import Q
-from django.db import connection  # <-- 1. Importación para ejecutar SQL directo
+from django.db import connection
 
 def lista_proveedores(request):
     busqueda = request.GET.get("buscar", "")

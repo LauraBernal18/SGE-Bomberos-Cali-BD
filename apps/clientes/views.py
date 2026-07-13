@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models.deletion import ProtectedError
 from django.db.models import Q
+from django.db import connection
 
 
 def lista_clientes(request):
@@ -49,6 +50,13 @@ def crear_cliente(request):
         formulario = ClienteForm(request.POST)
 
         if formulario.is_valid():
+
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                               SELECT setval(pg_get_serial_sequence('cliente', 'id_cliente'),
+                                             COALESCE(MAX(id_cliente), 1))
+                               FROM cliente;
+                               """)
             formulario.save()
             messages.success(
                   request,
