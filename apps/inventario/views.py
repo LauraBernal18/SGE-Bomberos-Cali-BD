@@ -3,6 +3,7 @@ from django.db.models.deletion import ProtectedError
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db import connection
 
 from .models import Inventario, Producto
 from .forms import InventarioForm, ProductoForm
@@ -130,6 +131,12 @@ def crear_producto(request):
     if request.method == "POST":
         formulario = ProductoForm(request.POST)
         if formulario.is_valid():
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                               SELECT setval(pg_get_serial_sequence('producto', 'id_producto'),
+                                             COALESCE(MAX(id_producto), 1))
+                               FROM producto;
+                               """)
             formulario.save()
             messages.success(request, "Producto registrado correctamente.")
             return redirect("lista_productos")
