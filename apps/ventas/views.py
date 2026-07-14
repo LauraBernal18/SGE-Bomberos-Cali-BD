@@ -38,7 +38,7 @@ def lista_ventas(request):
     ordenes = Orden.objects.select_related("id_cliente", "id_empleado", "id_sede").all()
     if busqueda:
         ordenes = ordenes.filter(
-            Q(id_cliente__nombre_razon_social__icontains=busqueda) |
+            Q(id_cliente_nombre_razon_social_icontains=busqueda) |
             Q(estado__icontains=busqueda)
         )
     ordenes = ordenes.order_by("-fecha")
@@ -123,6 +123,19 @@ def detalle_venta(request, id_orden):
     factura = Factura.objects.filter(id_orden=orden).first()
     formulario = None
 
+    detalles_con_iva = []
+    for d in detalles:
+        tarifa = obtener_tarifa_iva(d.id_producto.categoria)
+        iva_linea = (d.subtotal * tarifa).quantize(Decimal("0.01"))
+        detalles_con_iva.append({
+            "producto": d.id_producto.nombre,
+            "cantidad": d.cantidad,
+            "valor_unitario": d.id_producto.precio,
+            "subtotal": d.subtotal,
+            "tarifa_iva": tarifa * 100,
+            "iva_linea": iva_linea,
+        })
+
     if orden.es_editable and request.method == "POST":
         formulario = DetalleOrdenForm(request.POST)
         if formulario.is_valid():
@@ -153,6 +166,7 @@ def detalle_venta(request, id_orden):
     return render(request, "ventas/detalle.html", {
         "orden": orden,
         "detalles": detalles,
+        "detalles_con_iva": detalles_con_iva,
         "formulario": formulario,
         "factura": factura,
     })
