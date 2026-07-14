@@ -6,7 +6,7 @@
 
 **Sistema de Gestión Comercial — Bomberos Voluntarios de Cali**
 
-**Grupo:** 01
+**Grupo:** 4
 
 **Empresa de referencia:** Benemérito Cuerpo de Bomberos Voluntarios de Cali (División Comercial)
 
